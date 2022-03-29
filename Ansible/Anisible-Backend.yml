@@ -1,0 +1,48 @@
+- name: Install specified python requirements in indicated (virtualenv)
+         pip:
+          requirements: /home/ansible/new_chatapp/requirements.txt
+          virtualenv: /home/ansible/new_chatapp/venv
+       - name: install package for chat app
+         apt: name=default-libmysqlclient-dev state=present
+       - name: install package for chat app
+         apt: name=libssl-dev state=present
+       - name: install mysqlclient
+         pip:
+          name: mysqlclient
+          virtualenv: /home/ansible/new_chatapp/venv
+       - name: install package for chat app
+         apt: name=python3-psycopg2 state=present
+       - name: install psycopg2-binary
+         pip:
+          name: psycopg2-binary
+          virtualenv: /home/ansible/new_chatapp/venv
+       - name: Run migrate-command
+         django_manage:
+          command: migrate
+          app_path: /home/ansible/new_chatapp/fundoo
+          pythonpath: /home/ansible/new_chatapp/fundoo/fundoo
+          virtualenv: /home/ansible/new_chatapp/venv
+       - name: Copying gunicorn configurations to chatapp
+         copy:
+          src: /home/ansible/config/gunicorn.service
+          dest: /etc/systemd/system/gunicorn.service
+       - name: start gunicorn service
+         systemd:
+          name: gunicorn
+          daemon_reload: yes
+          state: started
+          enabled: yes
+       - name: uninstall PyJWT
+         pip:
+          name: PyJWT==1.7.1
+          state: absent
+          virtualenv: /home/ansible/new_chatapp/venv
+       - name: install PyJWT
+         pip:
+          name: PyJWT==1.7.1
+          state: present
+          virtualenv: /home/ansible/new_chatapp/venv
+       - name: restart gunicorn service
+         systemd:
+          name: gunicorn
+          state: restarted

@@ -1,0 +1,26 @@
+--- # creating playbook for frontend host
+ - name: frontend
+   hosts: frontend
+   user: ansible
+   become: yes
+   gather_facts: yes
+   tasks:
+     - name: install nginx package for chat app
+       apt: name=nginx state=present
+     - name: Copying gunicorn configurations to chatapp
+       copy:
+        src: /home/ansible/nginx/nginx.service
+        dest: /etc/nginx/sites-available/fundoo
+     - name: start nginx service
+       service:
+        name: nginx
+        state: started
+     - name: For enabling nginx sites enabled
+       file:
+        src: /etc/nginx/sites-available/fundoo
+        dest: /etc/nginx/sites-enabled/default
+        state: link
+     - name: restart nginx service
+       service:
+        name: nginx
+        state: restarted
